@@ -3,7 +3,7 @@ const cheerio=require('cheerio');
 const json2csv=require('json2csv').parse;
 const fs=require('fs');
 
-const arr=[];
+
 const allbranch=[];
 
 const baseUri='https://www.iitg.ac.in/acad/CourseStructure/Btech2018/';
@@ -64,8 +64,11 @@ const getSyllabus=async (link) => {
 // to get the code and courseName
 
 async function getData(link){
+    
     try{
+        
         const res= await axios.get(`${baseUri}${link}.htm`)
+        const arr=[];
         let count = 0;
         const $=cheerio.load(res.data)
     
@@ -119,13 +122,12 @@ const branchdetails=async ()=>{
     for (let i=0;i<branch.length;i++){
         let course = branch[i];
         data=await getData(course);
-        if(i==branch.length-1){
         allbranch.push(data);
-        const csv=json2csv(allbranch[0],{fields});
-        fs.writeFile(`data.csv`,csv,(e)=>{
-            console.log(e);
+        const csv=json2csv(data,{fields});
+        fs.writeFile(`data${course}.csv`,csv,(e)=>{
+            if(e) console.log(e);
         })
-        }
+        
     }
     // console.log(allbranch)
     
