@@ -1,5 +1,7 @@
 const axios=require('axios');
 const cheerio=require('cheerio');
+const json2csv=require('json2csv').parse;
+const fs=require('fs');
 
 const arr=[];
 const allbranch=[];
@@ -92,7 +94,7 @@ async function getData(link){
 
             if(!(code.includes("ourse") || code=='' || code==' ' || !isNaN(code.replace(' ','')) || code=='  ') || !(code1.includes("ourse") || code1=='' || code1==' ' || !isNaN(code1.replace(' ','')))){
                 arr.push({code,courseName,syllabus:Syllabus ? Syllabus : "Syllabus not uploaded"},
-                    {code:code1,courseName:courseName1,Syllabus:Syllabus1 ? Syllabus1 : "Syllabus not uploaded"})
+                    {code:code1,courseName:courseName1,syllabus:Syllabus1 ? Syllabus1 : "Syllabus not uploaded"})
             }
             
         }
@@ -107,16 +109,27 @@ async function getData(link){
 
 // to store details of all the branch
 let branch=['CSE','CE','BT','EEE','ECE','CL','CST']
+// 'CE','BT','EEE','ECE','CL','CST'
     
 
 
 const branchdetails=async ()=>{
+    const fields=['code','courseName','syllabus']
+    let data;
     for (let i=0;i<branch.length;i++){
         let course = branch[i];
-        let data=await getData(course);
+        data=await getData(course);
+        if(i==branch.length-1){
         allbranch.push(data);
+        const csv=json2csv(allbranch[0],{fields});
+        fs.writeFile(`data.csv`,csv,(e)=>{
+            console.log(e);
+        })
+        }
     }
     // console.log(allbranch)
+    
 }
 branchdetails();
+
 
